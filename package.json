@@ -1,0 +1,10 @@
+{
+  "name": "planmyride",
+  "version": "0.0.0",
+  "description": "Plan your ride!",
+  "repository": "https://github.com/jwconway/planmyride",
+  "devDependencies": {
+    "bower": "^1.7.7",
+    "http-server": "^0.9.0"
+  }
+}
