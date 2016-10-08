@@ -1,10 +1,11 @@
 'use strict';
 google.load('visualization', '1', {
-    packages: ['columnchart']
+    packages: ['corechart']
 });
+
 var thisWayPoints = new Array();
 var thisElevations = new Array();
-var map, directionsService, elevator;
+var map, directionsService, elevator, hoverMarker;
 angular.module('planMyRide.map').service('mapService', function () {
     this.initMap = function () {
         directionsService = new google.maps.DirectionsService();
@@ -23,14 +24,8 @@ angular.module('planMyRide.map').service('mapService', function () {
             });
             placeMarker(event.latLng);
         });
-
-        function placeMarker(location) {
-            var marker = new google.maps.Marker({
-                position: location
-                , map: map
-            });
-        }
     }
+
     this.calcRoute = function () {
         var segmentPromises = new Array();
         var segmentNumber = 1;
@@ -43,7 +38,19 @@ angular.module('planMyRide.map').service('mapService', function () {
     }
     this.plotElevations = function (elevations) {
         var chartDiv = document.getElementById('elevation_chart');
+
         var chart = new google.visualization.ColumnChart(chartDiv);
+
+        google.visualization.events.addListener(chart, 'onmouseover', function (e){
+            var marker = placeMarker(elevations[e.row].location);
+            if(hoverMarker) hoverMarker.setMap(null);
+            hoverMarker = marker;
+        });
+        google.visualization.events.addListener(chart, 'onmouseout', function (e){
+            if(hoverMarker) hoverMarker.setMap(null);
+            hoverMarker = null;
+        });
+
         // Extract the data from which to populate the chart.
         // Because the samples are equidistant, the 'Sample'
         // column here does double duty as distance along the
@@ -51,8 +58,9 @@ angular.module('planMyRide.map').service('mapService', function () {
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Sample');
         data.addColumn('number', 'Elevation');
+        //data.addColumn({type: 'string', role: 'tooltip'});
         for (var i = 0; i < elevations.length; i++) {
-            data.addRow(['', elevations[i].elevation]);
+            data.addRow(['', elevations[i].elevation]);//, getElevationTooltipContent(elevations[i])]);
             //console.log(elevations[i].elevation);
         }
         // Draw the chart using the data within its DIV.
@@ -61,6 +69,7 @@ angular.module('planMyRide.map').service('mapService', function () {
             , legend: 'none'
             , titleY: 'Elevation (m)'
             , titleX: 'Distance (km)'
+            , tooltip : {isHtml:true,trigger:'both'}
         });
     }
     this.plotRoute = function (path) {
@@ -73,6 +82,17 @@ angular.module('planMyRide.map').service('mapService', function () {
         });
     }
 });
+
+function placeMarker(location) {
+    return new google.maps.Marker({
+        position: location
+        , map: map
+    });
+}
+
+function getElevationTooltipContent(elevation) {
+    return 'Elevation: ' + elevation.elevation;
+}
 
 function buildRouteDetail(segments) {
     return new Promise(function (resolve, reject) {
@@ -137,7 +157,7 @@ function getPathElevations(path, elevator) {
         var elevations;
         elevator.getElevationAlongPath({
             'path': path
-            , 'samples': 25
+            , 'samples': 50
         }, function (elevations, status) {
             if (status === 'OK') {
                 resolve(elevations);
