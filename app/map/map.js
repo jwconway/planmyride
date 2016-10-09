@@ -5,7 +5,7 @@ angular.module('planMyRide.map', ['ngRoute']).config(['$routeProvider', function
             templateUrl: 'map/map.html'
             , controller: 'MapCtrl'
         });
-}])
+}]) 
     //.service('mapService', mapService)
     .controller('MapCtrl', ['$scope', 'mapService', function ($scope, mapService) {
         var ctrl = this;
@@ -18,5 +18,5 @@ angular.module('planMyRide.map', ['ngRoute']).config(['$routeProvider', function
                     mapService.plotRoute(route.routePath);
                 });
             });
-        }
-}]);
+        } 
+}]); 

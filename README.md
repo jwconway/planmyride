@@ -2,6 +2,6 @@
 
 ```
 npm install 
-http-server -o
+npm run dev
 
 ```

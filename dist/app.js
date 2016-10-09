@@ -1,0 +1,1 @@
+"use strict";angular.module("planMyRide",["ngRoute","planMyRide.map"]).config(["$locationProvider","$routeProvider",function(e,i){e.hashPrefix("!"),i.otherwise({redirectTo:"/map"})}]);
